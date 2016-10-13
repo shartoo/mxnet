@@ -18,9 +18,8 @@ def build_network():
     fc3 = mx.symbol.FullyConnected(data = act2, name='fc3', num_hidden=10)
     sm1 = mx.symbol.SoftmaxOutput(data = fc3, name = 'softmax1')
     sm2 = mx.symbol.SoftmaxOutput(data = fc3, name = 'softmax2')
-
-    softmax = mx.symbol.Group([sm1, sm2])
-
+    sm3 = mx.symbol.SoftmaxOutput(data=fc3, name='softmax3')
+    softmax = mx.symbol.Group([sm1, sm2,sm3])
     return softmax
 
 class Multi_mnist_iterator(mx.io.DataIter):
@@ -40,7 +39,8 @@ class Multi_mnist_iterator(mx.io.DataIter):
         provide_label = self.data_iter.provide_label[0]
         # Different labels should be used here for actual application
         return [('softmax1_label', provide_label[1]), \
-                ('softmax2_label', provide_label[1])]
+                ('softmax2_label', provide_label[1]),\
+                ('softmax3_label', provide_label[1])]
 
     def hard_reset(self):
         self.data_iter.hard_reset()
@@ -52,7 +52,7 @@ class Multi_mnist_iterator(mx.io.DataIter):
         batch = self.data_iter.next()
         label = batch.label[0]
 
-        return mx.io.DataBatch(data=batch.data, label=[label, label], \
+        return mx.io.DataBatch(data=batch.data, label=[label, label,label], \
                 pad=batch.pad, index=batch.index)
 
 class Multi_Accuracy(mx.metric.EvalMetric):
